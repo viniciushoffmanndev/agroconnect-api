@@ -5,22 +5,25 @@ import com.viniciushoffmanndev.agroconnect_api.dto.UsuarioResponseDTO;
 import com.viniciushoffmanndev.agroconnect_api.model.Usuario;
 import com.viniciushoffmanndev.agroconnect_api.model.PerfilEnum;
 import com.viniciushoffmanndev.agroconnect_api.repository.UsuarioRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, BCryptPasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UsuarioResponseDTO salvar(UsuarioDTO dto) {
         Usuario usuario = Usuario.builder()
                 .nome(dto.getNome())
                 .email(dto.getEmail())
-                .senha(dto.getSenha())
+                .senha(passwordEncoder.encode(dto.getSenha()))
                 .perfil(PerfilEnum.valueOf(dto.getPerfil().toUpperCase())) // cuidado com valores inválidos!
                 .cpf(dto.getCpf())
                 .telefone(dto.getTelefone())
