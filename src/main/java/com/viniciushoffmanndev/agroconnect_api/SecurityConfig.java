@@ -12,14 +12,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/usuarios").permitAll()           // ✅ LIBERA POST /usuarios
+                        .requestMatchers("/h2-console/**").permitAll()      // ✅ LIBERA o console H2
+                        .anyRequest().authenticated()                       // 🔒 Protege o resto
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**")
+                        .ignoringRequestMatchers("/h2-console/**", "/usuarios")  // ✅ Evita erro CSRF no POST
                 )
-                .headers(headers -> headers.frameOptions().disable());
-
+                .headers(headers -> headers.frameOptions().disable()); // ✅ Libera visualização H2
 
         return http.build();
     }
