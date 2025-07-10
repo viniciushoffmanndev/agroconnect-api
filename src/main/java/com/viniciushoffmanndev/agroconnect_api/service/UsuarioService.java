@@ -8,6 +8,8 @@ import com.viniciushoffmanndev.agroconnect_api.repository.UsuarioRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UsuarioService {
 
@@ -45,4 +47,19 @@ public class UsuarioService {
         return response;
 
     }
+
+    public List<UsuarioResponseDTO> listarTodos() {
+        return usuarioRepository.findAll().stream().map(usuario -> {
+            UsuarioResponseDTO dto = new UsuarioResponseDTO();
+            dto.setId(usuario.getId());
+            dto.setNome(usuario.getNome());
+            dto.setEmail(usuario.getEmail());
+            dto.setPerfil(usuario.getPerfil().name());
+            dto.setCpf(usuario.getCpf());
+            dto.setTelefone(usuario.getTelefone());
+            dto.setDataNascimento(usuario.getDataNascimento());
+            return dto;
+        }).toList();
+    }
+
 }
