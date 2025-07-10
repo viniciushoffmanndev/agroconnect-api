@@ -1,12 +1,16 @@
 package com.viniciushoffmanndev.agroconnect_api.service;
 
+import com.viniciushoffmanndev.agroconnect_api.dto.LoginDTO;
 import com.viniciushoffmanndev.agroconnect_api.dto.UsuarioDTO;
 import com.viniciushoffmanndev.agroconnect_api.dto.UsuarioResponseDTO;
 import com.viniciushoffmanndev.agroconnect_api.model.Usuario;
 import com.viniciushoffmanndev.agroconnect_api.model.PerfilEnum;
 import com.viniciushoffmanndev.agroconnect_api.repository.UsuarioRepository;
+import com.viniciushoffmanndev.agroconnect_api.security.JwtUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -15,13 +19,31 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, BCryptPasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository,
+                          BCryptPasswordEncoder passwordEncoder,
+                          JwtUtil jwtUtil)
+    {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
-    public UsuarioResponseDTO salvar(UsuarioDTO dto) {
+    public String autenticar(LoginDTO dto) {
+        Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Usuário não encontrado"
+                ));
+
+        if (!passwordEncoder.matches(dto.getSenha(), usuario.getSenha())) {
+            throw new RuntimeException("Senha inválida");
+        }
+
+        return jwtUtil.gerarToken(usuario.getEmail());
+    }
+
+public UsuarioResponseDTO salvar(UsuarioDTO dto) {
         Usuario usuario = Usuario.builder()
                 .nome(dto.getNome())
                 .email(dto.getEmail())
@@ -48,18 +70,17 @@ public class UsuarioService {
 
     }
 
-    public List<UsuarioResponseDTO> listarTodos() {
-        return usuarioRepository.findAll().stream().map(usuario -> {
-            UsuarioResponseDTO dto = new UsuarioResponseDTO();
-            dto.setId(usuario.getId());
-            dto.setNome(usuario.getNome());
-            dto.setEmail(usuario.getEmail());
-            dto.setPerfil(usuario.getPerfil().name());
-            dto.setCpf(usuario.getCpf());
-            dto.setTelefone(usuario.getTelefone());
-            dto.setDataNascimento(usuario.getDataNascimento());
-            return dto;
-        }).toList();
-    }
-
+public List<UsuarioResponseDTO> listarTodos() {
+    return usuarioRepository.findAll().stream().map(usuario -> {
+        UsuarioResponseDTO dto = new UsuarioResponseDTO();
+        dto.setId(usuario.getId());
+        dto.setNome(usuario.getNome());
+        dto.setEmail(usuario.getEmail());
+        dto.setPerfil(usuario.getPerfil().name());
+        dto.setCpf(usuario.getCpf());
+        dto.setTelefone(usuario.getTelefone());
+        dto.setDataNascimento(usuario.getDataNascimento());
+        return dto;
+    }).toList();
+}
 }
