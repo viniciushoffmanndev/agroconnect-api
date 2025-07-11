@@ -22,17 +22,27 @@ API para a plataforma **AgroConnect**, que promove a conexão entre **produtores
 ## 📁 Estrutura do Projeto
 
 ```
-src/
- └── main/
-     ├── java/
-     │   └── com.viniciushoffmanndev.agroconnectapi
-     │       ├── controller/
-     │       ├── service/
-     │       ├── repository/
-     │       └── model/
-     └── resources/
-         ├── application.properties
-         └── static/
+agroconnect-api/
+└── src/
+    └── main/
+        ├── java/
+        │   └── com.viniciushoffmanndev.agroconnect_api/
+        │       ├── config/
+        │       ├── controller/
+        │       ├── dto/
+        │       ├── handler/
+        │       ├── model/
+        │       ├── repository/
+        │       ├── security/
+        │       ├── service/
+        │       └── AgroconnectApiApplication.java
+        │
+        └── resources/
+            ├── static/
+            ├── templates/
+            ├── application.properties
+            └── data.sql
+
 ```
 
 > ✅ O projeto segue boas práticas de separação por camadas (MVC + Service + Repository).
